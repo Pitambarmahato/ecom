@@ -36,6 +36,17 @@ class Order(models.Model):
     def __str__(self):
         return self.customer.name
 
+
+    """Write login behind shipping for digital and non digital products"""
+    @property
+    def shipping(self):
+        shipping = False
+        orderitems = self.orderitem_set.all()
+        for i in orderitems:
+            if i.product.digital == False:
+                shipping = True
+        return shipping
+
     @property
     def get_cart_total(self):
         orderitems = self.orderitem_set.all()

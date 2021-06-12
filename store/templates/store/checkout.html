@@ -5,6 +5,7 @@
         <div class="col-lg-6">
             <div class="box-element" id="form-wrapper">
             <form id ='form'>
+            {% if not user.is_authenticated %}
                 <div id = 'user-info'>
                     <div class="form-field">
                         <input required class="form-control" type="text" name="name" placeholder="Name...">
@@ -13,24 +14,25 @@
                         <input required class="form-control" type="text" name="email" placeholder="Email...">
                     </div>
                 </div>
+            {% endif %}
                 <div id = 'shipping-info'>
                     <hr>
                     <p>Shipping Information:</p>
                     <hr>
                     <div class="form-field">
-                        <input class="form-control" type="text" name="address" placeholder="Address..">
+                        <input class="form-control" type="text" name="address" id="address" placeholder="Address..">
                     </div>
                     <div class="form-field">
-                        <input class="form-control" type="text" name="city" placeholder="City..">
+                        <input class="form-control" type="text" name="city" id="city" placeholder="City..">
                     </div>
                     <div class="form-field">
-                        <input class="form-control" type="text" name="state" placeholder="State..">
+                        <input class="form-control" type="text" name="state" id="state" placeholder="State..">
                     </div>
                     <div class="form-field">
-                        <input class="form-control" type="text" name="zipcode" placeholder="Zip code..">
+                        <input class="form-control" type="text" name="zipcode" id="zipcode" placeholder="Zip code..">
                     </div>
                     <div class="form-field">
-                        <input class="form-control" type="text" name="country" placeholder="Zip code..">
+                        <input class="form-control" type="text" name="country" id="country" placeholder="Zip code..">
                     </div>
                 </div>
                 <hr>
@@ -38,8 +40,10 @@
             </form>
             </div>
             <br>
-            <div class="box-element hidden" id="payment-info">
+            <div class="box-element" id="payment-info">
                 <small>Paypal Options</small>
+                {% comment %} <button id="make-payment">Make Payment</button> {% endcomment %}
+                <div id="paypal-button-container"></div>
             </div>
         </div>
         <div class="col-lg-6">
@@ -61,4 +65,86 @@
             </div>
         </div>
     </div>
+{% endblock %}
+{% block js %}
+    <script src="https://www.paypal.com/sdk/js?client-id=AdY0WhNhJw4h-d7u_p5LQpy7mGYhkojK79geF9-lb8XlHbTUSKmyqAu7PnrYc4DyeFdB0L_4Kkq4aSoZ&currency=USD&disable-funding=credit"></script>
+    <script>
+        var total = '{{ order.get_cart_total }}';
+
+        // Render the PayPal button into #paypal-button-container
+        paypal.Buttons({
+
+            // Set up the transaction
+            createOrder: function(data, actions) {
+                return actions.order.create({
+                    purchase_units: [{
+                        amount: {
+                            value: parseFloat(total).toFixed(2)
+                        }
+                    }]
+                });
+            },
+
+            // Finalize the transaction
+            onApprove: function(data, actions) {
+                return actions.order.capture().then(function(details) {
+                    // Show a success message to the buyer
+                    var address = $('#address').val();
+                    var city = $("#city").val();
+                    var state = $("#state").val();
+                    var zipcode = $("#zipcode").val();
+                    var country = $("#country").val();
+                    var formData = {'address': address, 'city':city, 'state':state, 'zipcode':zipcode, 'country':country, 'total':total}
+                    console.log(formData)
+                    $.ajax({
+                        method: 'POST',
+                        url: '/process_order/',
+                        data: formData,
+                        success: function(response){
+                            console.log(response)
+                        }
+                    })
+                });
+            }
+
+
+        }).render('#paypal-button-container');
+    </script>
+    <script type="text/javascript">
+        $("#payment-info").hide();
+
+        var total = '{{ order.get_cart_total }}';
+
+        console.log(total)
+        $("#form-button").click(function(e){
+            e.preventDefault();
+            $("#payment-info").show();
+            $("#form-button").hide();
+            console.log('submit button clicked');
+        });
+
+        $("#paypal-button-container").click(function(e){
+            e.preventDefault();
+            console.log("Hello")
+            var address = $('#address').val();
+            var city = $("#city").val();
+            var state = $("#state").val();
+            var zipcode = $("#zipcode").val();
+            var country = $("#country").val();
+            var formData = {'address': address, 'city':city, 'state':state, 'zipcode':zipcode, 'country':country, 'total':total}
+            console.log(formData)
+            $.ajax({
+                method: 'POST',
+                url: '/process_order/',
+                data: formData,
+                success: function(response){
+                    console.log(response)
+                }
+            })
+            console.log(formData)
+
+        })
+
+
+    </script>
 {% endblock %}
