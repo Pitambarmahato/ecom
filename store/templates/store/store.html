@@ -2,20 +2,55 @@
 {% load static %}
 {% block content%}
     <div class="row">
-        {% for product in products %}
-            <div class="col-lg-4">
-                {% if product.image %}
-                    <img class="thumbnail" src="{{ product.imageURL }}" />
-                {% endif %}
-                <div class="box-element product">
-                    <h6><strong>{{ product.name }}</strong></h6>
-                    <hr>
-                    <button data-product = "{{ product.id }}" data-action="add" 
-                    class="btn btn-outline-secondary add-btn update-cart">Add To Cart</button>
-                    <a class="btn btn-outline-success " href="#">View</a>
-                    <h4 style="display: inline-block; float: right;">${{ product.price|floatformat:2 }}</h4>
-                </div>
+        <div class="col-lg-4">
+            <div class="box-element product">
+                <h6><strong>Filter Products</strong></h6>
+                <hr>
+                <form>
+                    <div class="form-group">
+                        <label for="inputCategory"><strong>Category: </strong></label>
+                        <select id="inputCategory" class="form-control">
+                            <option selected disabled>Choose...</option>
+                            <option>Male</option>
+                            <option>Female</option>
+                            <option>Children</option>
+                        </select>
+                    </div><hr>                    
+                    <div class="form-group">
+                        <label for="inputMinimum"><strong>Minimum Price: </strong></label>
+                        <input type="text" class="form-control" id="inputMinimum">
+                    </div><hr>
+                    <div class="form-group">
+                        <label for="inputMax"><strong>Maximum Price: </strong></label>
+                        <input type="text" class="form-control" id="inputMax">
+                    </div>
+                    <div class="form-group text-center">
+                        <button type="submit" class="btn btn-primary mt-2 rounded">Apply Filter</button>
+                    </div>
+                </form>
             </div>
-        {% endfor %}
+        </div>
+        <div class="col-lg-8">
+            <div class="row">
+                {% for product in products %}
+                    <div class="col-lg-6">
+                        <img class="thumbnail" src="{{ product.imageURL }}" />
+                        <div class="box-element product">
+                            <h6><strong>{{ product.name }}</strong></h6>
+                            <hr>
+                            <button data-product = "{{ product.id }}" data-action="add" 
+                            class="btn btn-outline-secondary add-btn update-cart">Add To Cart</button>
+                            <a class="btn btn-outline-success " href="{% url 'product-details' product.id%}">View</a>
+                            <h4 style="display: inline-block; float: right;">${{ product.price|floatformat:2 }}</h4>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+            <div class="m-3 text-center">
+                <button class="btn btn-outline-secondary rounded" id = 'loadmore'>Load More</button>
+            </div>
+        </div>
+        
     </div>
+
 {% endblock %}

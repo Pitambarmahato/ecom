@@ -1,6 +1,7 @@
 import json
 import uuid
 
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.shortcuts import render
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -33,6 +34,13 @@ def store(request):
         'cartItems':cartItems
     }
     return render(request, 'store/store.html', context=context)
+
+def details(request, pk):
+    product = Product.objects.get(id=pk)
+    context = {
+        'product': product
+    }
+    return render(request, 'store/details.html', context=context)
 
 def cart(request):
     if request.user.is_authenticated:
