@@ -1,3 +1,5 @@
+import datetime
+
 from django.db import models
 from django.contrib.auth.models import User
 
@@ -10,7 +12,16 @@ class Customer(models.Model):
     def __str__(self):
         return self.name
 
+class Category(models.Model):
+    name = models.CharField(max_length=100)
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.name
+
 class Product(models.Model):
+    category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, blank=True)
     name = models.CharField(max_length=100, null=True)
     price = models.FloatField()
     digital = models.BooleanField(default=False)
@@ -37,7 +48,7 @@ class Order(models.Model):
         return self.customer.name
 
 
-    """Write login behind shipping for digital and non digital products"""
+    """Write logic behind shipping for digital and non digital products"""
     @property
     def shipping(self):
         shipping = False

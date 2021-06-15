@@ -6,23 +6,23 @@
             <div class="box-element product">
                 <h6><strong>Filter Products</strong></h6>
                 <hr>
-                <form>
+                <form method="get">
                     <div class="form-group">
                         <label for="inputCategory"><strong>Category: </strong></label>
-                        <select id="inputCategory" class="form-control">
+                        <select id="inputCategory" class="form-control" name='category'>
                             <option selected disabled>Choose...</option>
-                            <option>Male</option>
-                            <option>Female</option>
-                            <option>Children</option>
+                            {% for category in categories %}
+                                <option value = '{{ category.id }}'>{{ category }}</option>
+                            {% endfor %}
                         </select>
                     </div><hr>                    
                     <div class="form-group">
                         <label for="inputMinimum"><strong>Minimum Price: </strong></label>
-                        <input type="text" class="form-control" id="inputMinimum">
+                        <input type="text" class="form-control" id="inputMinimum" name = 'minimum'>
                     </div><hr>
                     <div class="form-group">
                         <label for="inputMax"><strong>Maximum Price: </strong></label>
-                        <input type="text" class="form-control" id="inputMax">
+                        <input type="text" class="form-control" id="inputMax" name='maximum'>
                     </div>
                     <div class="form-group text-center">
                         <button type="submit" class="btn btn-primary mt-2 rounded">Apply Filter</button>

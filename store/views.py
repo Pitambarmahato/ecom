@@ -2,6 +2,7 @@ import json
 import uuid
 
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.db.models import Q
 from django.shortcuts import render
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -13,25 +14,44 @@ from .models import *
 # Create your views here.
 def store(request):
     if request.user.is_authenticated:
-        """ For Authenticated Users. """
 
+        """ For Authenticated Users. """
         customer = request.user.customer
 
         """Create or Get order items if present then fetch only those items whose complete status is false"""
-
         order, created = Order.objects.get_or_create(customer=customer, complete=False)
         items = order.orderitem_set.all()
         cartItems = order.get_cart_items
     else:
-        """ For Unauthenticated Users. """
 
+        """ For Unauthenticated Users. """
         items = []
         order = {'get_cart_total':0, 'get_cart_items':0} 
         cartItems = order['get_cart_items']
-    products = Product.objects.all()
+
+    category = request.GET.get('category')
+    min_price = request.GET.get('minimum')
+    max_price = request.GET.get('maximum')
+
+    product = Product.objects.all()
+
+    """ This is a filter query which is not good yet but will change soon. """
+    if(category):
+        products = product.filter(category_id = int(category))
+    elif(min_price):
+        products = product.filter(price__gte = min_price)
+    elif(max_price):
+        products = product.filter(price__lte = max_price)
+    else:
+        products = product
+    
+
+
+    categories = Category.objects.all()
     context = {
         'products': products,
-        'cartItems':cartItems
+        'cartItems':cartItems,
+        'categories': categories
     }
     return render(request, 'store/store.html', context=context)
 
@@ -121,7 +141,6 @@ def processOrder(request):
             order.complete = True
         order.save()
         if order.shipping == True:
-            print("hello")
             ShippingAddress.objects.create(
                 customer = customer, order = order, address = request.POST.get('address'), city = request.POST.get('city'),\
                     state = request.POST.get('state'), zipcode = request.POST.get('zipcode')
